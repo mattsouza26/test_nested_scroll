@@ -3,22 +3,20 @@ import 'package:test_nested_scroll/app/common/nested_scroll_physics.dart';
 
 import '../controllers/home_controller.dart';
 
-class NestedScrollPage extends StatefulWidget {
+class DefaultScrollPage extends StatefulWidget {
   final HomeController homeController;
-  const NestedScrollPage({super.key, required this.homeController});
+  const DefaultScrollPage({super.key, required this.homeController});
   @override
-  State<NestedScrollPage> createState() => _NestedScrollPageState();
+  State<DefaultScrollPage> createState() => _DefaultScrollPageState();
 }
 
-class _NestedScrollPageState extends State<NestedScrollPage> {
-  late final ScrollController _nestedScrollController;
+class _DefaultScrollPageState extends State<DefaultScrollPage> {
+  bool useController = false;
   late final ScrollController _listScrollController;
-
   @override
   void initState() {
     super.initState();
     widget.homeController.addListener(update);
-    _nestedScrollController = ScrollController();
     _listScrollController = ScrollController();
   }
 
@@ -28,9 +26,8 @@ class _NestedScrollPageState extends State<NestedScrollPage> {
 
   @override
   void dispose() {
-    widget.homeController.removeListener(update);
-    _nestedScrollController.dispose();
     _listScrollController.dispose();
+    widget.homeController.removeListener(update);
     super.dispose();
   }
 
@@ -38,9 +35,12 @@ class _NestedScrollPageState extends State<NestedScrollPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-        ElevatedButton(
-          onPressed: () => _listScrollController.jumpTo(_listScrollController.position.maxScrollExtent),
-          child: const Icon(Icons.vertical_align_bottom),
+        Offstage(
+          offstage: !useController,
+          child: ElevatedButton(
+            onPressed: () => _listScrollController.jumpTo(_listScrollController.position.maxScrollExtent),
+            child: const Icon(Icons.vertical_align_bottom),
+          ),
         ),
         ElevatedButton(
           onPressed: () => widget.homeController.addItem(),
@@ -50,11 +50,18 @@ class _NestedScrollPageState extends State<NestedScrollPage> {
           onPressed: () => widget.homeController.removeItem(),
           child: const Icon(Icons.remove),
         ),
+        Material(
+          child: Switch(
+              value: useController,
+              onChanged: (value) {
+                useController = value;
+                setState(() {});
+              }),
+        ),
       ]),
       body: SafeArea(
         child: NestedScrollView(
           physics: const NeverScrollableScrollPhysics(),
-          // controller: _nestedScrollController,
           headerSliverBuilder: (context, inner) => [
             const SliverToBoxAdapter(
               child: SizedBox(height: 300, child: Placeholder()),
@@ -64,9 +71,9 @@ class _NestedScrollPageState extends State<NestedScrollPage> {
             behavior: ScrollConfiguration.of(context).copyWith(overscroll: false),
             child: ListView.builder(
               primary: false,
-              physics: NestedScrollPhysics(context: context),
+              physics: useController ? NestedScrollPhysics(context: context) : null,
+              controller: useController ? _listScrollController : null,
               itemCount: widget.homeController.value.length,
-              controller: _listScrollController,
               itemBuilder: (context, index) => ListTile(
                 title: Text("${widget.homeController.value[index]}"),
               ),

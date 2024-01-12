@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:test_nested_scroll/app/screens/home/controllers/home_controller.dart';
 import 'package:test_nested_scroll/app/screens/home/pages/custom_scroll_page.dart';
+import 'package:test_nested_scroll/app/screens/home/pages/default_scroll_page.dart';
 import 'package:test_nested_scroll/app/screens/home/pages/nested_scroll_page.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -29,6 +30,18 @@ class _HomeScreenState extends State<HomeScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const SizedBox(width: double.infinity),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => DefaultScrollPage(
+                    homeController: _homeController,
+                  ),
+                ),
+              );
+            },
+            child: const Text("Default Scroll Page"),
+          ),
           ElevatedButton(
             onPressed: () {
               Navigator.of(context).push(

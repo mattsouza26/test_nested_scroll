@@ -39,12 +39,16 @@ class _CustomScrollPageState extends State<CustomScrollPage> {
     return Scaffold(
       floatingActionButton: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
         ElevatedButton(
+          onPressed: () => _listScrollController.jumpTo(_listScrollController.position.maxScrollExtent),
+          child: const Icon(Icons.vertical_align_bottom),
+        ),
+        ElevatedButton(
           onPressed: () => widget.homeController.addItem(),
-          child: const Text("ADD"),
+          child: const Icon(Icons.add),
         ),
         ElevatedButton(
           onPressed: () => widget.homeController.removeItem(),
-          child: const Text("Remove"),
+          child: const Icon(Icons.remove),
         ),
       ]),
       body: SafeArea(
@@ -60,7 +64,7 @@ class _CustomScrollPageState extends State<CustomScrollPage> {
               child: ScrollConfiguration(
                 behavior: ScrollConfiguration.of(context).copyWith(overscroll: false),
                 child: ListView.builder(
-                  physics: NestedScrollPhysics(parentController: _customScrollController),
+                  physics: NestedScrollPhysics(context: context, parentController: _customScrollController),
                   itemCount: widget.homeController.value.length,
                   controller: _listScrollController,
                   itemBuilder: (context, index) => ListTile(
